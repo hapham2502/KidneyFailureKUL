@@ -119,8 +119,11 @@ print(best.lambda)
 KidneyFailure$Days.Log <- log(KidneyFailure$Days + 1)
 
 # TRANSFORMED MODEL
-
+fit.main <- aov(Days.Log ~ Duration + WeightGain, data = KidneyFailure)
+summary(fit.main)
 fit.full <- aov(Days.Log ~ Duration * WeightGain, data = KidneyFailure)
+summary(fit.full)
+# we keep using full because pooling has barely any effect on p-values/statistical power so better to report full model for transparency
 
 par(mfrow = c(2, 2))
 plot(fit.full) 
@@ -129,32 +132,29 @@ par(mfrow = c(1, 1))
 shapiro.test(residuals(fit.full))
 #transformation seems to have fixed homoscedastisticy
 
-summary(fit.full)
-# interaction is not significant --> leave it out of model
-
-fit.main <- aov(Days.Log ~ Duration + WeightGain, data = KidneyFailure)
-summary(fit.main)
-
 # POST HOC ANALYSIS (Weight gain)
 
-#Tukey for WeightGain
-tukey.weight <- glht(fit.main, linfct = mcp(WeightGain = "Tukey"))
-tukey.ci <- confint(tukey.weight)
-summary(tukey.weight)
-plot(tukey.weight)
+#Tukey for WeightGain (Jimmy)
+tk_result <- TukeyHSD(fit.full, "WeightGain")
+print(tk_result)
+# Plotting the Tukey Confidence Intervals
+par(mar = c(5, 10, 4, 2)) # Adjust margins for labels
+plot(tk_result, las = 1, col = "steelblue")
+abline(v = 0, lty = 2, col = "red")
 
-#back transofrmation for Weight Gain
+#back transformation for Weight Gain
 weightgain.bt <- data.frame(
-  Comparison = rownames(tukey.ci$confint),
-  Log.Diff   = tukey.ci$confint[, "Estimate"],
-  Log.Lwr    = tukey.ci$confint[, "lwr"],
-  Log.Upr    = tukey.ci$confint[, "upr"]
+  Comparison = rownames(tk_result$WeightGain),
+  Log.Diff   = tk_result$WeightGain[, "diff"],
+  Log.Lwr    = tk_result$WeightGain[, "lwr"],
+  Log.Upr    = tk_result$WeightGain[, "upr"],
+  p.value    = tk_result$WeightGain[, "p adj"]
 )
 
-#add p-values (HA)
-tukey.summary <- summary(tukey.weight)
-weightgain.bt$p.value <- round(tukey.summary$test$pvalues, 4)
-weightgain.bt$p.value
+
+#add p-values (HA) (edited by Jimmy)
+weightgain.bt$p.value <- round(tk_result$WeightGain[, "p adj"], 4)
+print(weightgain.bt$p.value)
 ## conclusion: p < 0.05 for all three comparisons => all weight groups differ
 ## significantly from each other. Every increase in weight gain leads to 
 ## significantly longer hospitalized days. 
@@ -186,10 +186,10 @@ print(weightgain.bt)
 #Duration has only two groups, so we already know that the effect is longer stay --> shorter hospitalization
 
 #confidence intervals
-ci.log <- confint(fit.main, parm="DurationLong", level = .95)
+ci.log <- confint(fit.full, parm="DurationLong", level = .95)
 
 #coefficient
-coef.log <- coef(fit.main)["DurationLong"]
+coef.log <- coef(fit.full)["DurationLong"]
 #Back transformation for Duration
 duration.bt <- data.frame(
   Comparison = "Long - Short" ,
