@@ -117,6 +117,13 @@ tukey.ci <- confint(tukey.weight)
 summary(tukey.weight)
 plot(tukey.weight)
 
+# Run Tukey's HSD on the model
+# P-values of TukeyHSD are more accurate, glht() approximates those p-values
+# Prof Alonso did use glht() tukey to calculate the pairwise difference which are the same between the two functions
+# for the p-values he used TukeyHSD
+TukeyHSD(fit.main, which = "WeightGain")
+
+
 #back transofrmation for Weight Gain
 weightgain.bt <- data.frame(
   Comparison = rownames(tukey.ci$confint),
@@ -199,4 +206,5 @@ interaction.plot(x.factor = KidneyFailure$WeightGain,
 #No interaction effect --> effects are additive
 #Have to keep in mind log-transformation, the difference in *actual* amount of days between
 #weight gain classes, but also withing for example substantial weight gain between
+
 #short and long treatment within substantial weight gain is huge
