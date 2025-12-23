@@ -39,21 +39,47 @@ KidneyFailure$Group <- factor(KidneyFailure$Group,
                               levels=c("Short:Slight", "Short:Moderate", 
                                        "Short:Substantial", "Long:Slight",
                                        "Long:Moderate", "Long:Substantial"))
-par(mfrow = c(1,2))
-boxplot(Days ~ Group, data=KidneyFailure,
-        main="Hospital Days by Duration & Weight Gain",
-        ylab="Days Hospitalized",
-        xlab="Group",
-        las=2,
-        col = rep(c("blue","green"), each=3),
-        border="black",
-        ylim=c(0, max(KidneyFailure$Days) * 1.1))
+
+par(mar = c(8, 4, 4, 2) + 0.1)  # Bottom margin = 8 lines
+
+boxplot(Days ~ Group, data = KidneyFailure,
+        main = "Hospital Days by Duration & Weight Gain",
+        ylab = "Days Hospitalized",
+        xlab = "",
+        las = 2,  # Makes x-axis labels vertical
+        col = rep(c("lightblue", "lightgreen"), each = 3),
+        border = "black",
+        ylim = c(0, max(KidneyFailure$Days) * 1.1))
+
+# means per factor (HA)
+plot.design(Days ~ Duration + WeightGain, data = KidneyFailure,
+            main = "Mean Hospitalization Days by Factors",
+            xlab = "Factors",
+            ylab = "Mean Days",
+            col = "black",
+            pch = 16,
+            cex = 1.2)
+# interaction plot (HA)
+interaction.plot(x.factor = KidneyFailure$WeightGain,  
+                 trace.factor = KidneyFailure$Duration, 
+                 response = KidneyFailure$Days,         
+                 fun = mean,                            
+                 xlab = "Weight Gain",                  
+                 ylab = "Mean Hospitalization Days",    
+                 main = "Interaction Plot: Duration × Weight Gain",
+                 col = c("blue", "red"),               
+                 lwd = 2,                               
+                 trace.label = "Duration",              
+                 type = "b")                           
+
 # ANALYSIS (HA)
-# Test interaction using ANOVA
-anova(lm(Days ~ Duration * WeightGain, data = KidneyFailure))
-# Test main factors using ANOVA
-anova_results <- anova(lm(Days ~ Duration + WeightGain, data = KidneyFailure))
-print(anova_results)
+# 1. Test interaction 
+fit_full <- aov(Days ~ Duration * WeightGain, data = KidneyFailure)
+summary(fit_full)
+
+# 2. Test main effects (additive model)
+fit_additive <- aov(Days ~ Duration + WeightGain, data = KidneyFailure)
+summary(fit_additive)
 
 # MODEL AND ASSUMPTIONS
 
@@ -133,13 +159,6 @@ weightgain.bt$p.value
 ## significantly from each other. Every increase in weight gain leads to 
 ## significantly longer hospitalized days. 
 
-# Run Tukey's HSD on the model (Jimmy)
-# P-values of TukeyHSD are more accurate, glht() approximates those p-values
-# Prof Alonso did use glht() tukey to calculate the pairwise difference which are the same between the two functions
-# for the p-values he used TukeyHSD
-TukeyHSD(fit.main, which = "WeightGain")
-
-
 # the ratio is e^(log_diff)
 weightgain.bt$Ratio <- exp(weightgain.bt$Log.Diff)
 weightgain.bt$Ratio.Lwr <- exp(weightgain.bt$Log.Lwr)
@@ -206,6 +225,4 @@ interaction.plot(x.factor = KidneyFailure$WeightGain,
 #No interaction effect --> effects are additive
 #Have to keep in mind log-transformation, the difference in *actual* amount of days between
 #weight gain classes, but also withing for example substantial weight gain between
-
 #short and long treatment within substantial weight gain is huge
-
