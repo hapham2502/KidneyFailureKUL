@@ -48,6 +48,13 @@ boxplot(Days ~ Group, data=KidneyFailure,
         col = rep(c("blue","green"), each=3),
         border="black",
         ylim=c(0, max(KidneyFailure$Days) * 1.1))
+# ANALYSIS (HA)
+# Test interaction using ANOVA
+anova(lm(Days ~ Duration * WeightGain, data = KidneyFailure))
+# Test main factors using ANOVA
+anova_results <- anova(lm(Days ~ Duration + WeightGain, data = KidneyFailure))
+print(anova_results)
+
 # MODEL AND ASSUMPTIONS
 
 model.full <- lm(Days ~ Duration * WeightGain, data = KidneyFailure)
