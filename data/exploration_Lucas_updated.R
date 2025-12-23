@@ -133,7 +133,7 @@ weightgain.bt$p.value
 ## significantly from each other. Every increase in weight gain leads to 
 ## significantly longer hospitalized days. 
 
-# Run Tukey's HSD on the model
+# Run Tukey's HSD on the model (Jimmy)
 # P-values of TukeyHSD are more accurate, glht() approximates those p-values
 # Prof Alonso did use glht() tukey to calculate the pairwise difference which are the same between the two functions
 # for the p-values he used TukeyHSD
@@ -208,3 +208,4 @@ interaction.plot(x.factor = KidneyFailure$WeightGain,
 #weight gain classes, but also withing for example substantial weight gain between
 
 #short and long treatment within substantial weight gain is huge
+
