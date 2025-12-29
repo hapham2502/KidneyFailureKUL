@@ -41,22 +41,23 @@ KidneyFailure$Group <- factor(KidneyFailure$Group,
                                        "Short:Substantial", "Long:Slight",
                                        "Long:Moderate", "Long:Substantial"))
 
+par(mfrow = c(1, 3)) 
 par(mar = c(8, 4, 4, 2) + 0.1)  # Bottom margin = 8 lines
 
 boxplot(Days ~ Group, data = KidneyFailure,
-        main = "Hospital Days by Duration & Weight Gain",
+        main = "A. Hospital Days by Duration & Weight Gain ", # Shortened title to fit better
         ylab = "Days Hospitalized",
         xlab = "",
-        las = 2,  # Makes x-axis labels vertical
+        las = 2,
         col = rep(c("lightblue", "lightgreen"), each = 3),
         border = "black",
         ylim = c(0, max(KidneyFailure$Days) * 1.1))
 
 ## means per factor 
 plot.design(Days ~ Duration + WeightGain, data = KidneyFailure,
-            main = "Mean Hospitalization Days by Factors",
+            main = "B. Mean Hospitalization Days by Factors",
             xlab = "Factors",
-            ylab = "Mean Days",
+            ylab = "Mean Hospitalization Days",
             col = "black",
             pch = 16,
             cex = 1.2)
@@ -68,11 +69,14 @@ interaction.plot(x.factor = KidneyFailure$WeightGain,
                  fun = mean,                            
                  xlab = "Weight Gain",                  
                  ylab = "Mean Hospitalization Days",    
-                 main = "Interaction Plot: Duration × Weight Gain",
-                 col = c("blue", "red"),               
+                 main = "C. Interaction: Duration × Weight Gain",
+                 col = c("blue", "red"),                
                  lwd = 2,                               
                  trace.label = "Duration",              
-                 type = "b")                           
+                 type = "b")     
+
+# reset standard parameters
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 0.1)              
 
 # analysis & assumption test
 ## test interaction 
@@ -220,3 +224,4 @@ interaction.plot(x.factor = KidneyFailure$WeightGain,
 ## Have to keep in mind log-transformation, the difference in *actual* amount of days between
 ## weight gain classes, but also withing for example substantial weight gain between
 ## short and long treatment within substantial weight gain is huge
+
